@@ -81,6 +81,13 @@ int commandManager(String message) {
     Serial.print("seedTemperatureHigh set to : ");
     //Serial.println(jsonDoc["seedTemperatureHigh"]);
   }
+  // {"order":"Update_seedTemperatureLow", "NewTemperature":18}
+  else if (jsonDoc["order"] == "Update_seedTemperatureLow") {
+    Serial.println( " - Update seedTemperatureLow order received");
+    seedTemperatureHigh = jsonDoc["seedTemperatureLow"];
+    Serial.print("seedTemperatureLow set to : ");
+    //Serial.println(jsonDoc["seedTemperatureLow"]);
+  }
 
   
 }
