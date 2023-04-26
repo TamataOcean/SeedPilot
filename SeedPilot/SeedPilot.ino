@@ -53,7 +53,7 @@ void loop() {
   
   /* Gestion des entrées en commande {"order":"INSTRUCTION"} */
   if (Serial.available() > 0) {
-    String data = Serial.readStigUntil('\n');
+    String data = Serial.readStringUntil('\n');
     Serial.print( " - message received : ");
     Serial.println(data);
     commandManager(data);
