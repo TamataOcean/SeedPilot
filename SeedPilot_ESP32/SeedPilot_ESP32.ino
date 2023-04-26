@@ -7,7 +7,7 @@ DallasTemperature ds(&oneWire);
 
 DynamicJsonDocument jsonDoc(256); 
 
-int relayHeater = 16; // Pin 33 for the Relay on Teensy
+int relayHeater = 16; // Pin 16 for the Relay on ESP32
 
 int seedTemperatureHigh = 23;
 int seedTemperatureLow = 21;
