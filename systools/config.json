@@ -1,0 +1,21 @@
+{
+    "AppName": "Tamata Seed pilot Station",
+    "Version": "1.0.0",
+    "Copyright": "Copyright Open Source - W3Licence",
+    "system": {
+        "user": "SEEDPILOT",
+        "id": "SEEDPILOT",
+        "mac": "ESP32_SeedPilot",
+        "interval": 10,
+        "console": "",
+        "mqttServer": "172.24.1.1",
+        "mqttTopic": "seedpilot/update",
+        "influxDB": {
+            "database": "dataseed",
+            "host": "localhost",
+            "port": 8086,
+            "username": "test",
+            "password": "test"
+        }
+    }
+}

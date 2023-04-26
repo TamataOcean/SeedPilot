@@ -1,0 +1,14 @@
+[Unit]
+Description=Seed Pilot
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/node save_data.js
+WorkingDirectory=/home/pi/code/SeedPilot/systools
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target
