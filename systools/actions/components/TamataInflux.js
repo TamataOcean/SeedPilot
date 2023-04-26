@@ -29,8 +29,8 @@ class TamataInfluxDB {
                   user :         FieldType.STRING,
                   //timestamp :  FieldType.FLOAT,
                   //mac:         FieldType.STRING,
-                  Humidity:   FieldType.FLOAT,
-                  Pressure:    FieldType.FLOAT,
+                  //Humidity:   FieldType.FLOAT,
+                  //Pressure:    FieldType.FLOAT,
                   Temperature:    FieldType.FLOAT
                },
                tags: [ 'sensor', 'user' ]
@@ -73,8 +73,8 @@ class TamataInfluxDB {
          measurement : "sensor",
          fields: { 
             user :         jsonRecord.user,
-            Humidity:      jsonRecord.Humidity,
-            Pressure:      jsonRecord.Pressure,
+            //Humidity:      jsonRecord.Humidity,
+            //Pressure:      jsonRecord.Pressure,
             Temperature:   jsonRecord.Temperature
             }  
          }]).catch(err => {
