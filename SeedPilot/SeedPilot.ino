@@ -8,11 +8,11 @@ DallasTemperature ds(&oneWire);
 DynamicJsonDocument jsonDoc(256); 
 
 int relayHeater = 33; // Pin 33 for the Relay on Teensy
-int relayLight = 34; // Pin 33 for the Relay on Teensy
-int relayWater = 35; // Pin 33 for the Relay on Teensy
 
-int seedTemperatureHigh = 23;
-int seedTemperatureLow = 21;
+double seedTemperatureHigh = 25;
+double seedTemperatureLow = 24.6;
+int timeInterval = 7500;
+long lastMsg = 0;
 
 bool relayStatus = false; //Relay off at the beginning
 
@@ -20,46 +20,49 @@ void setup() {
   Serial.begin(115200);  // définition de l'ouverture du port série
   ds.begin();          // sonde activée
 
+  delay(30);
   Serial.println("INIT RELAY");
+  Serial.print("Temperature High = ");
+  Serial.println(seedTemperatureHigh );
+  Serial.print("Temperature Low = ");
+  Serial.println(seedTemperatureLow );
+  
   // Pin for relay module set as output
   pinMode(relayHeater, OUTPUT);
   digitalWrite(relayHeater, HIGH);
-
-  pinMode(relayLight, OUTPUT);
-  digitalWrite(relayLight, HIGH);
-  
-  pinMode(relayWater, OUTPUT);
-  digitalWrite(relayWater, HIGH);
 }
 
 void loop() {
-  ds.requestTemperatures();
-  double temperature = ds.getTempCByIndex(0);
-  Serial.print(temperature);
-  Serial.println( "°C");
-
+  long now = millis();
+  if (now - lastMsg > timeInterval ) {
+    lastMsg = now;
+    
+    ds.requestTemperatures();
+    double temperature = ds.getTempCByIndex(0);
+    Serial.print(temperature);
+    Serial.println( "°C");
   
-  if ( temperature < seedTemperatureLow && !relayStatus) {
-    Serial.println( " - Heater ON");
-    digitalWrite(relayHeater, LOW);
-    relayStatus = true;
+    
+    if ( temperature < seedTemperatureLow ) {
+      Serial.println( " - Heater ON");
+      digitalWrite(relayHeater, LOW);
+      relayStatus = true;
+    }
+    if ( temperature >= seedTemperatureHigh ) {
+          Serial.println(" - Heater Off");
+      digitalWrite(relayHeater, HIGH);
+      Serial.println("OFF");
+      relayStatus = false;
+    }
+    
+    /* Gestion des entrées en commande {"order":"INSTRUCTION"} */
+    if (Serial.available() > 0) {
+      String data = Serial.readStringUntil('\n');
+      Serial.print( " - message received : ");
+      Serial.println(data);
+      commandManager(data);
+    }      
   }
-  if ( temperature >= seedTemperatureHigh && relayStatus ) {
-        Serial.println(" - Heater Off");
-    digitalWrite(relayHeater, HIGH);
-    Serial.println("OFF");
-    relayStatus = false;
-  }
-  
-  /* Gestion des entrées en commande {"order":"INSTRUCTION"} */
-  if (Serial.available() > 0) {
-    String data = Serial.readStringUntil('\n');
-    Serial.print( " - message received : ");
-    Serial.println(data);
-    commandManager(data);
-  }  
-  
-  delay(100);
 }
 
 
