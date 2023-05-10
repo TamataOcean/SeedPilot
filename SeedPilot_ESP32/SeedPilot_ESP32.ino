@@ -7,7 +7,11 @@ DallasTemperature ds(&oneWire);
 
 DynamicJsonDocument jsonDoc(256); 
 
-int relayHeater = 16; // Pin 16 for the Relay on ESP32
+int relayHeater = 26; 
+int relayLight = 25; 
+int relayFan = 33; 
+int relayPump = 32; 
+
 
 int seedTemperatureHigh = 23;
 int seedTemperatureLow = 21;
@@ -22,6 +26,16 @@ void setup() {
   // Pin for relay module set as output
   pinMode(relayHeater, OUTPUT);
   digitalWrite(relayHeater, HIGH);
+  delay(100);
+  pinMode(relayLight, OUTPUT);
+  digitalWrite(relayLight, HIGH);
+  delay(100);
+  pinMode(relayFan, OUTPUT);
+  digitalWrite(relayFan, HIGH);
+  delay(100);
+  pinMode(relayPump, OUTPUT);
+  digitalWrite(relayPump, HIGH);
+  delay(100);
 }
 
 void loop() {
@@ -30,15 +44,14 @@ void loop() {
   Serial.print(temperature);
   Serial.println( "°C");
 
-  
   if ( temperature < seedTemperatureLow && !relayStatus) {
     Serial.println( " - Heater ON");
-    digitalWrite(relayHeater, LOW);
+    digitalWrite(relayHeater, HIGH);
     relayStatus = true;
   }
   if ( temperature >= seedTemperatureHigh && relayStatus ) {
         Serial.println(" - Heater Off");
-    digitalWrite(relayHeater, HIGH);
+    digitalWrite(relayHeater, LOW);
     Serial.println("OFF");
     relayStatus = false;
   }
@@ -66,12 +79,12 @@ int commandManager(String message) {
   // {"order":"HeaterOn"}
   if (jsonDoc["order"] == "HeaterOn") {
     Serial.println( " - Heater On order received");
-    digitalWrite(relayHeater, LOW);
+    digitalWrite(relayHeater, HIGH);
     Serial.println("HeaterOn");
   }
   else if (jsonDoc["order"] == "HeaterOff") {
     Serial.println( " - Heater Off order received");
-    digitalWrite(relayHeater, HIGH);
+    digitalWrite(relayHeater, LOW);
     Serial.println("HeaterOff");
   }
   // {"order":"Update_seedTemperatureHigh", "NewTemperature":25}
@@ -87,6 +100,42 @@ int commandManager(String message) {
     seedTemperatureHigh = jsonDoc["seedTemperatureLow"];
     Serial.print("seedTemperatureLow set to : ");
     //Serial.println(jsonDoc["seedTemperatureLow"]);
+  }
+  // {"order":"LightOff"}
+  else if (jsonDoc["order"] == "LightOff") {
+    Serial.println( " - Light Off order received");
+    digitalWrite(relayLight, LOW);
+    Serial.println("LightOff");
+  }
+  // {"order":"LightOn"}
+  else if (jsonDoc["order"] == "LightOn") {
+    Serial.println( " - Light On order received");
+    digitalWrite(relayLight, HIGH);
+    Serial.println("LightOn");
+  }
+  // {"order":"FanOff"}
+  else if (jsonDoc["order"] == "FanOff") {
+    Serial.println( " - Fan Off order received");
+    digitalWrite(relayFan, LOW);
+    Serial.println("FanOff");
+  }
+  // {"order":"FanOn"}
+  else if (jsonDoc["order"] == "FanOn") {
+    Serial.println( " - Fan On order received");
+    digitalWrite(relayFan, HIGH);
+    Serial.println("FanOn");
+  }
+  // {"order":"PumpOff"}
+  else if (jsonDoc["order"] == "PumpOff") {
+    digitalWrite(relayPump, LOW);
+    Serial.println( " - pump Off order received");
+    Serial.println("PumpOff");
+  }
+  // {"order":"PumpOn"}
+  else if (jsonDoc["order"] == "PumpOn") {
+    Serial.println( " - pump On order received");
+    digitalWrite(relayPump, HIGH);
+    Serial.println("PumpOn");
   }
 
   
