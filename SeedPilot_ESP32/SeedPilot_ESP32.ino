@@ -117,7 +117,7 @@ void loop() {
       Serial.println("Reconnect to Mqtt");
       reconnect();
     }
-    String json = "{\"user\":\""+(String)mqtt_user+"\",\"Temperature\":\""+(String)temperature+"\",\"stateHeater\":\""+(String)stateHeater+"\",\"stateLight\":\""+(String)stateLight+"\",\"stateFan\":\""+(String)stateFan+"\",\"statePump\":\""+(String)statePump+"\"}";
+    String json = "{\"user\":\""+(String)mqtt_user+"\",\"Temperature\":\""+(String)temperature+"\",\"stateHeater\":"+stateHeater+",\"stateLight\":"+stateLight+",\"stateFan\":"+stateFan+",\"statePump\":"+statePump+"}";
     client.publish(mqtt_output, json.c_str() );
     //client.disconnect();
     Serial.println("Mqtt sent to : " + (String)mqtt_output );
