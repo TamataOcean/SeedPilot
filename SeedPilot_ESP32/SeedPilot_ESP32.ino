@@ -34,7 +34,7 @@ DynamicJsonDocument jsonDoc(256);
 const char* ssid     = "WifiRaspi";
 const char* password = "wifiraspi";
 const char* mqtt_server = "172.24.1.1";
-const char* mqtt_output = "esp32/update/seedpilot";
+const char* mqtt_output = "esp32/seedpilot";
 const char* mqtt_input = "esp32/input/seedpilot";
 const char* mqtt_log = "esp32/log";
 const char* mqtt_user = "ESP32_SeedPilot";
@@ -52,8 +52,11 @@ bool statePump = false;
 int seedTemperatureHigh = 25;
 int seedTemperatureLow = 24.5;
 long lastMsg = 0;
-int timeInterval = 7500;
-
+long lastWifiConnection = 0;
+long lastConnection = 0; // Used to comeback to first loop if MQTT Reattemp connection is too long.
+int maxAttempts = 10;
+int timeInterval = 10000; //Mqtt send data every 20sec
+int timeMaxWifi = 60000;
 bool relayStatus = false; //Relay off at the beginning
 
 WiFiClient espClient;
@@ -89,12 +92,11 @@ void setup() {
 }
 
 void loop() {
-
   long now = millis();
-  
   client.loop();
 
   ds.requestTemperatures();
+  delay(30);
   double temperature = ds.getTempCByIndex(0);
   Serial.print(temperature);
   Serial.println( "°C");
@@ -118,11 +120,12 @@ void loop() {
       reconnect();
     }
     String json = "{\"user\":\""+(String)mqtt_user+"\",\"Temperature\":\""+(String)temperature+"\",\"stateHeater\":"+stateHeater+",\"stateLight\":"+stateLight+",\"stateFan\":"+stateFan+",\"statePump\":"+statePump+"}";
-    client.publish(mqtt_output, json.c_str() );
+    client.publish(mqtt_output, json.c_str());
     //client.disconnect();
     Serial.println("Mqtt sent to : " + (String)mqtt_output );
     Serial.println(json);
     delay(500);
+
   }
 
   /* Gestion des entrées en commande {"order":"INSTRUCTION"} */
@@ -223,6 +226,7 @@ int commandManager(String message) {
  *  ---------------------
  */
 void setup_wifi() {
+  long now = millis();
   delay(10);
   // We start by connecting to a WiFi network
   Serial.println();
@@ -232,6 +236,11 @@ void setup_wifi() {
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
+    if ( now - lastWifiConnection > timeMaxWifi ) {
+      lastWifiConnection = now;
+      Serial.println("Max delay for wifi connection is over !");
+      break;
+    }
     delay(500);
     Serial.print(".");
   }
@@ -246,7 +255,8 @@ void setup_wifi() {
  *  ------------------
  */
 void reconnect() {
-  // Loop until we're reconnected
+  // Loop until we're reconnected or 10 attemps to connect.
+  int attempts = 0;
   while (!client.connected()) {
     delay(100);
     Serial.print("Attempting MQTT connection...");
@@ -262,6 +272,13 @@ void reconnect() {
       // Wait 5 seconds before retrying
       delay(3000);
     }
+    attempts++;
+    if (attempts > maxAttempts  ) {
+      Serial.println("Impossible to connect after 10 attempts");
+      Serial.println("Reboot... ");
+      ESP.restart();
+    }
+
   }
 }
 
