@@ -96,7 +96,6 @@ void loop() {
   client.loop();
 
   ds.requestTemperatures();
-  delay(30);
   double temperature = ds.getTempCByIndex(0);
   Serial.print(temperature);
   Serial.println( "°C");
@@ -121,7 +120,6 @@ void loop() {
     }
     String json = "{\"user\":\""+(String)mqtt_user+"\",\"Temperature\":\""+(String)temperature+"\",\"stateHeater\":"+stateHeater+",\"stateLight\":"+stateLight+",\"stateFan\":"+stateFan+",\"statePump\":"+statePump+"}";
     client.publish(mqtt_output, json.c_str());
-    //client.disconnect();
     Serial.println("Mqtt sent to : " + (String)mqtt_output );
     Serial.println(json);
     delay(500);
@@ -226,7 +224,7 @@ int commandManager(String message) {
  *  ---------------------
  */
 void setup_wifi() {
-  long now = millis();
+  long nowWifi = millis();
   delay(10);
   // We start by connecting to a WiFi network
   Serial.println();
@@ -236,8 +234,8 @@ void setup_wifi() {
   WiFi.begin(ssid, password);
 
   while (WiFi.status() != WL_CONNECTED) {
-    if ( now - lastWifiConnection > timeMaxWifi ) {
-      lastWifiConnection = now;
+    if ( nowWifi - lastWifiConnection > timeMaxWifi ) {
+      lastWifiConnection = nowWifi;
       Serial.println("Max delay for wifi connection is over !");
       break;
     }
