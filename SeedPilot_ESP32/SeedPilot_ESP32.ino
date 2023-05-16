@@ -33,8 +33,8 @@ int deviceCount = 0;
 
 DynamicJsonDocument jsonDoc(256); 
 
-const char* ssid     = "WifiRaspi";
-const char* password = "WifiRaspi";
+const char* ssid     = "GasStationAP";
+const char* password = "tamata50";
 const char* mqtt_server = "172.24.1.1";
 const char* mqtt_output = "esp32/seedpilot";
 const char* mqtt_input = "esp32/input/seedpilot";
@@ -66,8 +66,8 @@ float seedTemperatureLow = 24.5;
 float seedTemperatureMax = 25.5;
 
 // FAN CONFIG
-long fanInterval = 60000 ; //interval to activte each milliseconde the fan - every 1min
-long fanActivation_duration = 15000; //during time Fan is activated
+long fanInterval = 300000 ; //interval to activte each milliseconde the fan - every 5min
+long fanActivation_duration = 60000; //during time Fan is activated 
 
 long lastMsg = 0;
 long lastFanActivation = 0;
@@ -313,6 +313,16 @@ int commandManager(String message) {
   else if (jsonDoc["order"] == "Update_HourOff") {
     sched_lightHourOff = jsonDoc["hour"].as<int>();
     Serial.println("lightHourOff Changed with = " + (String)sched_lightHourOff );
+  }
+  //  {"order":"Update_fanInterval", "fanInterval": 60000} // Fan ON every 60 sec
+  else if (jsonDoc["order"] == "Update_fanInterval") { 
+    fanInterval = jsonDoc["fanInterval"].as<int>();
+    Serial.println("fanInterval Changed with = " + (String)fanInterval);
+  }
+  //  {"order":"Update_fanActivation_duration", "fanActivation_duration": 10000} //Fan ON during 10 sec
+  else if (jsonDoc["order"] == "Update_fanActivation_duration") { 
+    fanActivation_duration = jsonDoc["fanActivation_duration"].as<int>();
+    Serial.println("fanActivation_duration Changed with = " + (String)fanActivation_duration);
   }
   return 1;
 }
