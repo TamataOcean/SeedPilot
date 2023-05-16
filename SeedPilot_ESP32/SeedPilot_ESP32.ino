@@ -324,6 +324,10 @@ int commandManager(String message) {
     fanActivation_duration = jsonDoc["fanActivation_duration"].as<int>();
     Serial.println("fanActivation_duration Changed with = " + (String)fanActivation_duration);
   }
+  //  {"order":"getConfig"}
+  else if (jsonDoc["order"] == "getConfig") {
+    printConfig();
+  }
   return 1;
 }
 
@@ -413,27 +417,29 @@ void callback(char* topic, byte* message, unsigned int length) {
  *  -----------------------
  */
 void printConfig(){
-  Serial.println("\n");
-  Serial.println("------- WIFI CONFIG ----- ");
-  Serial.println("-- SSID = " + (String)ssid);
-  Serial.println("-- PWD = " + (String)password);
-  Serial.println("-- MQTT SERVER = " + (String)mqtt_server);
-  Serial.println("-- MQTT OUTPUT = " + (String)mqtt_output);
-  Serial.println("-- MQTT INPUT = " + (String)mqtt_input);
-  Serial.println("-- MQTT USER = " + (String)mqtt_user);
-  Serial.println("-- MQTT MAX ATTEMPTS= " + (String)maxAttempts);
-  Serial.println("\n");
-  Serial.println("------- TEMPERATURE CONFIG ----- ");
-  Serial.println("-- seed temperature high = " + (String)seedTemperatureHigh );
-  Serial.println("-- seed temperature low = " + (String)seedTemperatureLow );
-  Serial.println("-- seed temperature max = " + (String)seedTemperatureMax );
-  Serial.println("\n");
-  Serial.println("------- TIMER CONFIG ------ ");
-  Serial.println("-- time Interval = " + (String)timeInterval );
-  Serial.println("-- time Max for Wifi = " + (String)timeMaxWifi);
-  Serial.println("\n");
-  Serial.println("------- SCHED CONFIG ------ ");
-  Serial.println("-- hour On = " + (String)sched_lightHourOn );
-  Serial.println("-- hour Off = " + (String)sched_lightHourOff );
-  
+  Serial.println("{");
+  Serial.println("\"WIFI_CONFIG\":{");
+  Serial.println("\"SSID\":\""+ (String)ssid + "\",");
+  Serial.println("\"PWD\":\"" + (String)password +"\",");
+  Serial.println("\"MQTT_SERVER\":\"" + (String)mqtt_server+"\",");
+  Serial.println("\"MQTT_OUTPUT\":\"" + (String)mqtt_output+"\",");
+  Serial.println("\"MQTT_INPUT\":\"" + (String)mqtt_input+"\",");
+  Serial.println("\"MQTT_USER\":\"" + (String)mqtt_user+"\",");
+  Serial.println("\"MQTT_MAX_ATTEMPTS\":" + (String)maxAttempts);
+  Serial.println("},");
+  Serial.println("\"TEMPERATURE_CONFIG\":{");
+  Serial.println("\"seed_temperature_high\":\"" + (String)seedTemperatureHigh + "\",");
+  Serial.println("\"seed_temperature_low\":\"" + (String)seedTemperatureLow+ "\"," );
+  Serial.println("\"seed_temperature_max\":\"" + (String)seedTemperatureMax+ "\"" );
+  Serial.println("},");
+  Serial.println("\"TIMER_CONFIG\":{");
+  Serial.println("\"time_Interval\":\"" + (String)timeInterval +"\",");
+  Serial.println("\"time_Max_for_Wifi\":\"" + (String)timeMaxWifi+ "\"");
+  Serial.println("},");
+  Serial.println("\"SCHED_CONFIG\":{");
+  Serial.println("\"hour_On\":" + (String)sched_lightHourOn + "," );
+  Serial.println("\"hour_Off\":" + (String)sched_lightHourOff + "," );
+  Serial.println("\"fanInterval\":" + (String)fanInterval + "," );
+  Serial.println("\"fanActivation_duration\":" + (String)fanActivation_duration );
+  Serial.println("}}");
 }
