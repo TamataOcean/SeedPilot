@@ -21,6 +21,8 @@
 #include "OneWire.h"
 #include "DallasTemperature.h"
 #include <ArduinoJson.h>
+#include <NTPClient.h>
+#include <WiFiUdp.h>
 
 #define ONE_WIRE_BUS 17
 OneWire oneWire(ONE_WIRE_BUS);
@@ -31,13 +33,23 @@ int deviceCount = 0;
 
 DynamicJsonDocument jsonDoc(256); 
 
-const char* ssid     = "WifiRaspi";
-const char* password = "wifiraspi";
+const char* ssid     = "GasStationAP";
+const char* password = "tamata50";
 const char* mqtt_server = "172.24.1.1";
 const char* mqtt_output = "esp32/seedpilot";
 const char* mqtt_input = "esp32/input/seedpilot";
 const char* mqtt_log = "esp32/log";
 const char* mqtt_user = "ESP32_SeedPilot";
+// TIME SERVER 
+WiFiUDP ntpUDP;
+long TIMEOFFSET = 2*60*60; // Regarding your position 0 for longon, +2 * 60min * 60sec Paris 
+NTPClient timeClient(ntpUDP, TIMEOFFSET );
+// SCHEDULING 
+int hour;
+int minute;
+int seconde;
+int sched_lightHourOn = 6;      // Light on at 6AM
+int sched_lightHourOff= 22;     // Light off at 10PM
 
 int relayHeater = 26; 
 int relayLight = 25; 
@@ -48,9 +60,12 @@ bool stateLight = false;
 bool stateFan = false;
 bool statePump = false;
 
+// TEMPERATURE CONFIG
 float seedTemperatureHigh = 25;
 float seedTemperatureLow = 24.5;
 float seedTemperatureMax = 25.5;
+
+// FAN CONFIG
 long fanInterval = 20000 ; //interval to activte each milliseconde the fan - every 5min
 long fanActivation_duration = 60000; //during time Fan is activated
 
@@ -94,6 +109,9 @@ void setup() {
   pinMode(relayPump, OUTPUT);
   digitalWrite(relayPump, LOW);
 
+  // Init and get the time
+  timeClient.begin();
+  
   /* Getting all config on serial */
   printConfig();
 
@@ -105,6 +123,23 @@ void setup() {
 void loop() {
   long now = millis();
   client.loop();
+  timeClient.update();
+
+  hour = timeClient.getHours();
+  minute = timeClient.getMinutes();
+  seconde = timeClient.getSeconds();
+
+  //Activate Light regarding schedTime
+  if ( hour >= sched_lightHourOn && hour <= sched_lightHourOff && !stateLight) {
+    digitalWrite(relayLight, HIGH);
+    Serial.println("AUTO - Light on");
+    stateLight = true;
+  }
+  else if ((hour <sched_lightHourOn || hour > sched_lightHourOff ) && stateLight ){
+    digitalWrite(relayLight, LOW);
+    Serial.println("AUTO - Light off");
+    stateLight = false;
+  }
 
   ds.requestTemperatures();
   double temperature = ds.getTempCByIndex(0);
@@ -122,7 +157,7 @@ void loop() {
     stateHeater = false;
   }
 
-  // Fan Activation if temperature is too high 
+  // Fan ON if temperature is too high 
   if ( temperature >= seedTemperatureMax ) {
     // Serial.println(" - Fan On");
     digitalWrite(relayFan, HIGH);
@@ -130,12 +165,13 @@ void loop() {
     stateFan = true;
     
   }
+  // Fan OFF if temperature is too low
   if ( temperature <= seedTemperatureLow-1 ) {
     // Serial.println(" - Fan Off");
     digitalWrite(relayFan, LOW);
     stateFan = false;
   }
-  //Fan activated no more than "duration" limit UNLESS temperature is too high. 
+  //Fan activated no more than "duration" limit, UNLESS temperature is too high. 
   if ( now - lastFanActivation > fanActivation_duration && (temperature < seedTemperatureMax) ) {
     // Serial.println(" - Fan Off");
     digitalWrite(relayFan, LOW);
@@ -154,13 +190,13 @@ void loop() {
     Serial.println();
     Serial.println("------ Relay State : ");
 
-    if (relayHeater){relayState += "- Heater On\n";}else{relayState+="- Heater Off\n";}
-    if (relayFan){relayState += "- Fan On\n";}else{relayState+="- Fan Off\n";}
-    if (relayLight){relayState += "- Light On\n";}else{relayState+="- Light Off\n";}
-    if (relayPump){relayState += "- Pump On\n";}else{relayState+="- Pump Off\n";}
+    if (stateHeater){relayState += "- Heater On\n";}else{relayState+="- Heater Off\n";}
+    if (stateFan){relayState += "- Fan On\n";}else{relayState+="- Fan Off\n";}
+    if (stateLight){relayState += "- Light On\n";}else{relayState+="- Light Off\n";}
+    if (statePump){relayState += "- Pump On\n";}else{relayState+="- Pump Off\n";}
     
     Serial.println(relayState);
-
+    
     if (!client.connected()) {
       Serial.println("Reconnect to Mqtt");
       reconnect();
@@ -170,7 +206,7 @@ void loop() {
     Serial.println("Mqtt sent to : " + (String)mqtt_output );
     Serial.println(json);
     delay(500);
-
+    Serial.println(timeClient.getFormattedTime());
   }
 
   /* Incoming serial order ex: {"order":"INSTRUCTION"} */
@@ -187,7 +223,6 @@ void loop() {
 /* Sceduler manager             */
 /********************************/
 void schedRelay(long now, double temperature){
-  Serial.println("SchedRelay entering");
   Serial.print("Now=");
   Serial.println(now);
   Serial.print("lastFanActivation=");
@@ -199,14 +234,14 @@ void schedRelay(long now, double temperature){
   
   // FAN SCHEDULER
   if ( (now - lastFanActivation > fanInterval) && (temperature > seedTemperatureLow ) ) {
-    Serial.println("SchedRelay - Fan On");
+    Serial.println("AUTO - Fan On");
     digitalWrite(relayFan, HIGH);
     lastFanActivation = now;
     stateFan = true;
   }
 
   if ( (now - lastFanActivation > fanActivation_duration) || (temperature <= seedTemperatureLow) ) {
-    Serial.println("SchedRelay - duration is over, Fan Off");
+    Serial.println("AUTO - duration is over, Fan Off");
     Serial.print("Now=");
     Serial.println(now);
     Serial.print("lastFanActivation=");
@@ -292,6 +327,16 @@ int commandManager(String message) {
     digitalWrite(relayPump, HIGH);
     Serial.println("PumpOn");
     statePump = true;
+  }
+  //  {"order":"Update_HourOn", "hour": 5}
+  else if (jsonDoc["order"] == "Update_HourOn") {
+    sched_lightHourOn = jsonDoc["hour"].as<int>();
+    Serial.println("lightHourOn Changed with = "+ (String)sched_lightHourOn);
+  }
+  // {"order":"Update_HourOff", "hour": 22}
+  else if (jsonDoc["order"] == "Update_HourOff") {
+    sched_lightHourOff = jsonDoc["hour"].as<int>();
+    Serial.println("lightHourOff Changed with = " + (String)sched_lightHourOff );
   }
   return 1;
   
@@ -384,24 +429,27 @@ void callback(char* topic, byte* message, unsigned int length) {
  *  -----------------------
  */
 void printConfig(){
-
-Serial.println("\n");
-Serial.println("------- WIFI CONFIG ----- ");
-Serial.println("-- SSID = " + (String)ssid);
-Serial.println("-- PWD = " + (String)password);
-Serial.println("-- MQTT SERVER = " + (String)mqtt_server);
-Serial.println("-- MQTT OUTPUT = " + (String)mqtt_output);
-Serial.println("-- MQTT INPUT = " + (String)mqtt_input);
-Serial.println("-- MQTT USER = " + (String)mqtt_user);
-Serial.println("-- MQTT MAX ATTEMPTS= " + (String)maxAttempts);
-Serial.println("\n");
-Serial.println("------- TEMPERATURE CONFIG ----- ");
-Serial.println("-- seed temperature high = " + (String)seedTemperatureHigh );
-Serial.println("-- seed temperature low = " + (String)seedTemperatureLow );
-Serial.println("-- seed temperature max = " + (String)seedTemperatureMax );
-Serial.println("\n");
-Serial.println("------- TIMER CONFIG ------ ");
-Serial.println("-- time Interval = " + (String)timeInterval );
-Serial.println("-- time Max for Wifi = " + (String)timeMaxWifi);
-
+  Serial.println("\n");
+  Serial.println("------- WIFI CONFIG ----- ");
+  Serial.println("-- SSID = " + (String)ssid);
+  Serial.println("-- PWD = " + (String)password);
+  Serial.println("-- MQTT SERVER = " + (String)mqtt_server);
+  Serial.println("-- MQTT OUTPUT = " + (String)mqtt_output);
+  Serial.println("-- MQTT INPUT = " + (String)mqtt_input);
+  Serial.println("-- MQTT USER = " + (String)mqtt_user);
+  Serial.println("-- MQTT MAX ATTEMPTS= " + (String)maxAttempts);
+  Serial.println("\n");
+  Serial.println("------- TEMPERATURE CONFIG ----- ");
+  Serial.println("-- seed temperature high = " + (String)seedTemperatureHigh );
+  Serial.println("-- seed temperature low = " + (String)seedTemperatureLow );
+  Serial.println("-- seed temperature max = " + (String)seedTemperatureMax );
+  Serial.println("\n");
+  Serial.println("------- TIMER CONFIG ------ ");
+  Serial.println("-- time Interval = " + (String)timeInterval );
+  Serial.println("-- time Max for Wifi = " + (String)timeMaxWifi);
+  Serial.println("\n");
+  Serial.println("------- SCHED CONFIG ------ ");
+  Serial.println("-- hour On = " + (String)sched_lightHourOn );
+  Serial.println("-- hour Off = " + (String)sched_lightHourOff );
+  
 }
