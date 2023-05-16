@@ -33,8 +33,8 @@ int deviceCount = 0;
 
 DynamicJsonDocument jsonDoc(256); 
 
-const char* ssid     = "GasStationAP";
-const char* password = "tamata50";
+const char* ssid     = "WifiRaspi";
+const char* password = "WifiRaspi";
 const char* mqtt_server = "172.24.1.1";
 const char* mqtt_output = "esp32/seedpilot";
 const char* mqtt_input = "esp32/input/seedpilot";
@@ -189,12 +189,10 @@ void loop() {
     String relayState ="";
     Serial.println();
     Serial.println("------ Relay State : ");
-
     if (stateHeater){relayState += "- Heater On\n";}else{relayState+="- Heater Off\n";}
     if (stateFan){relayState += "- Fan On\n";}else{relayState+="- Fan Off\n";}
     if (stateLight){relayState += "- Light On\n";}else{relayState+="- Light Off\n";}
-    if (statePump){relayState += "- Pump On\n";}else{relayState+="- Pump Off\n";}
-    
+    if (statePump){relayState += "- Pump On\n";}else{relayState+="- Pump Off\n";} 
     Serial.println(relayState);
     
     if (!client.connected()) {
@@ -331,7 +329,7 @@ int commandManager(String message) {
   //  {"order":"Update_HourOn", "hour": 5}
   else if (jsonDoc["order"] == "Update_HourOn") {
     sched_lightHourOn = jsonDoc["hour"].as<int>();
-    Serial.println("lightHourOn Changed with = "+ (String)sched_lightHourOn);
+    Serial.println("lightHourOn Changed with = " + (String)sched_lightHourOn);
   }
   // {"order":"Update_HourOff", "hour": 22}
   else if (jsonDoc["order"] == "Update_HourOff") {
@@ -339,7 +337,6 @@ int commandManager(String message) {
     Serial.println("lightHourOff Changed with = " + (String)sched_lightHourOff );
   }
   return 1;
-  
 }
 
 
