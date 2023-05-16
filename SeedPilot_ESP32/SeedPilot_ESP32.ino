@@ -48,15 +48,19 @@ bool stateLight = false;
 bool stateFan = false;
 bool statePump = false;
 
+float seedTemperatureHigh = 25;
+float seedTemperatureLow = 24.5;
+float seedTemperatureMax = 25.5;
+long fanInterval = 20000 ; //interval to activte each milliseconde the fan - every 5min
+long fanActivation_duration = 60000; //during time Fan is activated
 
-int seedTemperatureHigh = 25;
-int seedTemperatureLow = 24.5;
 long lastMsg = 0;
+long lastFanActivation = 0;
 long lastWifiConnection = 0;
 long lastConnection = 0; // Used to comeback to first loop if MQTT Reattemp connection is too long.
 int maxAttempts = 10;
-int timeInterval = 10000; //Mqtt send data every 20sec
-int timeMaxWifi = 60000;
+long timeInterval = 10000; //Mqtt send data every 20sec
+long timeMaxWifi = 60000;
 bool relayStatus = false; //Relay off at the beginning
 
 WiFiClient espClient;
@@ -89,31 +93,74 @@ void setup() {
   digitalWrite(relayFan, LOW);
   pinMode(relayPump, OUTPUT);
   digitalWrite(relayPump, LOW);
+
+  /* Getting all config on serial */
+  printConfig();
+
 }
 
+/* ------------------------ */
+/* ------ LOOP ------------ */
+/* ------------------------ */
 void loop() {
   long now = millis();
   client.loop();
 
   ds.requestTemperatures();
   double temperature = ds.getTempCByIndex(0);
-  Serial.print(temperature);
-  Serial.println( "°C");
+  // Serial.print(temperature);
+  // Serial.println( "°C");
 
   if ( temperature < seedTemperatureLow) {
-    Serial.println( " - Heater ON");
+    // Serial.println( " - Heater ON");
     digitalWrite(relayHeater, HIGH);
     stateHeater = true;
   }
   if ( temperature >= seedTemperatureHigh ) {
-        Serial.println(" - Heater Off");
+    // Serial.println(" - Heater Off");
     digitalWrite(relayHeater, LOW);
-    Serial.println("OFF");
     stateHeater = false;
   }
 
+  // Fan Activation if temperature is too high 
+  if ( temperature >= seedTemperatureMax ) {
+    // Serial.println(" - Fan On");
+    digitalWrite(relayFan, HIGH);
+    lastFanActivation = now;
+    stateFan = true;
+    
+  }
+  if ( temperature <= seedTemperatureLow-1 ) {
+    // Serial.println(" - Fan Off");
+    digitalWrite(relayFan, LOW);
+    stateFan = false;
+  }
+  //Fan activated no more than "duration" limit UNLESS temperature is too high. 
+  if ( now - lastFanActivation > fanActivation_duration && (temperature < seedTemperatureMax) ) {
+    // Serial.println(" - Fan Off");
+    digitalWrite(relayFan, LOW);
+    stateFan = false;
+  }
+
+  //Schedule manager
+  //schedRelay(now, temperature);
+
+  // Every timeInterval, sending JSON data to Mqtt. 
   if (now - lastMsg > timeInterval ) {
     lastMsg = now;
+    Serial.print("Temperature" + (String)temperature);
+    Serial.println( "°C");
+    String relayState ="";
+    Serial.println();
+    Serial.println("------ Relay State : ");
+
+    if (relayHeater){relayState += "- Heater On\n";}else{relayState+="- Heater Off\n";}
+    if (relayFan){relayState += "- Fan On\n";}else{relayState+="- Fan Off\n";}
+    if (relayLight){relayState += "- Light On\n";}else{relayState+="- Light Off\n";}
+    if (relayPump){relayState += "- Pump On\n";}else{relayState+="- Pump Off\n";}
+    
+    Serial.println(relayState);
+
     if (!client.connected()) {
       Serial.println("Reconnect to Mqtt");
       reconnect();
@@ -126,7 +173,7 @@ void loop() {
 
   }
 
-  /* Gestion des entrées en commande {"order":"INSTRUCTION"} */
+  /* Incoming serial order ex: {"order":"INSTRUCTION"} */
   if (Serial.available() > 0) {
     String data = Serial.readStringUntil('\n');
     Serial.print( " - message received : ");
@@ -136,6 +183,38 @@ void loop() {
   delay(100);
 }
 
+/********************************/
+/* Sceduler manager             */
+/********************************/
+void schedRelay(long now, double temperature){
+  Serial.println("SchedRelay entering");
+  Serial.print("Now=");
+  Serial.println(now);
+  Serial.print("lastFanActivation=");
+  Serial.println(lastFanActivation);
+  Serial.print("fanInterval=");
+  Serial.println(fanInterval);
+  Serial.print("fanActivation_duration=");
+  Serial.println(fanActivation_duration);
+  
+  // FAN SCHEDULER
+  if ( (now - lastFanActivation > fanInterval) && (temperature > seedTemperatureLow ) ) {
+    Serial.println("SchedRelay - Fan On");
+    digitalWrite(relayFan, HIGH);
+    lastFanActivation = now;
+    stateFan = true;
+  }
+
+  if ( (now - lastFanActivation > fanActivation_duration) || (temperature <= seedTemperatureLow) ) {
+    Serial.println("SchedRelay - duration is over, Fan Off");
+    Serial.print("Now=");
+    Serial.println(now);
+    Serial.print("lastFanActivation=");
+    Serial.println(lastFanActivation);
+    digitalWrite(relayFan, LOW);
+    stateFan = false;
+  } 
+}
 
 /********************************/
 /* Management Command order     */
@@ -298,4 +377,31 @@ void callback(char* topic, byte* message, unsigned int length) {
   if (String(topic) == mqtt_input ) {
     commandManager(messageTemp);
   }
+}
+
+/* ------------------------
+ *  PRINT CONFIG
+ *  -----------------------
+ */
+void printConfig(){
+
+Serial.println("\n");
+Serial.println("------- WIFI CONFIG ----- ");
+Serial.println("-- SSID = " + (String)ssid);
+Serial.println("-- PWD = " + (String)password);
+Serial.println("-- MQTT SERVER = " + (String)mqtt_server);
+Serial.println("-- MQTT OUTPUT = " + (String)mqtt_output);
+Serial.println("-- MQTT INPUT = " + (String)mqtt_input);
+Serial.println("-- MQTT USER = " + (String)mqtt_user);
+Serial.println("-- MQTT MAX ATTEMPTS= " + (String)maxAttempts);
+Serial.println("\n");
+Serial.println("------- TEMPERATURE CONFIG ----- ");
+Serial.println("-- seed temperature high = " + (String)seedTemperatureHigh );
+Serial.println("-- seed temperature low = " + (String)seedTemperatureLow );
+Serial.println("-- seed temperature max = " + (String)seedTemperatureMax );
+Serial.println("\n");
+Serial.println("------- TIMER CONFIG ------ ");
+Serial.println("-- time Interval = " + (String)timeInterval );
+Serial.println("-- time Max for Wifi = " + (String)timeMaxWifi);
+
 }
