@@ -66,8 +66,8 @@ float seedTemperatureLow = 24.5;
 float seedTemperatureMax = 25.5;
 
 // FAN CONFIG
-long fanInterval = 20000 ; //interval to activte each milliseconde the fan - every 5min
-long fanActivation_duration = 60000; //during time Fan is activated
+long fanInterval = 60000 ; //interval to activte each milliseconde the fan - every 1min
+long fanActivation_duration = 15000; //during time Fan is activated
 
 long lastMsg = 0;
 long lastFanActivation = 0;
@@ -143,6 +143,7 @@ void loop() {
 
   ds.requestTemperatures();
   double temperature = ds.getTempCByIndex(0);
+  temperature = 25;
   // Serial.print(temperature);
   // Serial.println( "°C");
 
@@ -162,18 +163,27 @@ void loop() {
     // Serial.println(" - Fan On");
     digitalWrite(relayFan, HIGH);
     lastFanActivation = now;
-    stateFan = true;
-    
+    stateFan = true; 
   }
+
+  // Fan ON at every FanInterval, UNLESS temperature is to low. 
+  if ( (now - lastFanActivation > fanInterval) && (temperature > seedTemperatureLow ) && !stateFan) {
+    Serial.println("AUTO - Fan On");
+    digitalWrite(relayFan, HIGH);
+    lastFanActivation = now;
+    stateFan = true;
+  }
+
   // Fan OFF if temperature is too low
-  if ( temperature <= seedTemperatureLow-1 ) {
-    // Serial.println(" - Fan Off");
+  if ( temperature <= seedTemperatureLow-1 && stateFan) {
+    Serial.println("AUTO - Fan Off - Temperature is too low");
     digitalWrite(relayFan, LOW);
     stateFan = false;
   }
-  //Fan activated no more than "duration" limit, UNLESS temperature is too high. 
-  if ( now - lastFanActivation > fanActivation_duration && (temperature < seedTemperatureMax) ) {
-    // Serial.println(" - Fan Off");
+  
+  //Fan OFF if "duration" limit overpass, UNLESS temperature is too high. 
+  if ( now - lastFanActivation > fanActivation_duration && (temperature < seedTemperatureMax) && stateFan) {
+    Serial.println("AUTO - Fan Off duration passed");
     digitalWrite(relayFan, LOW);
     stateFan = false;
   }
@@ -215,38 +225,6 @@ void loop() {
     commandManager(data);
   }   
   delay(100);
-}
-
-/********************************/
-/* Sceduler manager             */
-/********************************/
-void schedRelay(long now, double temperature){
-  Serial.print("Now=");
-  Serial.println(now);
-  Serial.print("lastFanActivation=");
-  Serial.println(lastFanActivation);
-  Serial.print("fanInterval=");
-  Serial.println(fanInterval);
-  Serial.print("fanActivation_duration=");
-  Serial.println(fanActivation_duration);
-  
-  // FAN SCHEDULER
-  if ( (now - lastFanActivation > fanInterval) && (temperature > seedTemperatureLow ) ) {
-    Serial.println("AUTO - Fan On");
-    digitalWrite(relayFan, HIGH);
-    lastFanActivation = now;
-    stateFan = true;
-  }
-
-  if ( (now - lastFanActivation > fanActivation_duration) || (temperature <= seedTemperatureLow) ) {
-    Serial.println("AUTO - duration is over, Fan Off");
-    Serial.print("Now=");
-    Serial.println(now);
-    Serial.print("lastFanActivation=");
-    Serial.println(lastFanActivation);
-    digitalWrite(relayFan, LOW);
-    stateFan = false;
-  } 
 }
 
 /********************************/
@@ -346,9 +324,7 @@ int commandManager(String message) {
  */
 void setup_wifi() {
   long nowWifi = millis();
-  delay(10);
-  // We start by connecting to a WiFi network
-  Serial.println();
+    // We start by connecting to a WiFi network
   Serial.print("Connecting to ");
   Serial.println(ssid);
 
@@ -362,6 +338,7 @@ void setup_wifi() {
     }
     delay(500);
     Serial.print(".");
+    nowWifi = millis();
   }
   Serial.println("WiFi connected");
   Serial.println("IP address: ");
