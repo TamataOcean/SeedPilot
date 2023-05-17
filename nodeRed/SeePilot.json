@@ -1,0 +1,433 @@
+[
+    {
+        "id": "8bc02d2cd77092f8",
+        "type": "tab",
+        "label": "Seed PILOT",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "33071936bbcac7e0",
+        "type": "mqtt in",
+        "z": "8bc02d2cd77092f8",
+        "name": "",
+        "topic": "esp32/seedpilot",
+        "qos": "2",
+        "datatype": "auto-detect",
+        "broker": "9637f06ea0ba9ba2",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 120,
+        "y": 40,
+        "wires": [
+            [
+                "b06ca78a19d79b92"
+            ]
+        ]
+    },
+    {
+        "id": "89ebf4d90cc0fe63",
+        "type": "ui_gauge",
+        "z": "8bc02d2cd77092f8",
+        "name": "Température",
+        "group": "a9b09a7771d2a745",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "gtype": "gage",
+        "title": "Température",
+        "label": "°C",
+        "format": "{{msg.payload.Temperature}}",
+        "min": "15",
+        "max": "30",
+        "colors": [
+            "#0080ff",
+            "#25c038",
+            "#ca3838"
+        ],
+        "seg1": "20",
+        "seg2": "26",
+        "diff": false,
+        "className": "",
+        "x": 690,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "f859070f57309578",
+        "type": "comment",
+        "z": "8bc02d2cd77092f8",
+        "name": "Manual orders",
+        "info": "",
+        "x": 90,
+        "y": 240,
+        "wires": []
+    },
+    {
+        "id": "b06ca78a19d79b92",
+        "type": "json",
+        "z": "8bc02d2cd77092f8",
+        "name": "",
+        "property": "payload",
+        "action": "obj",
+        "pretty": false,
+        "x": 310,
+        "y": 40,
+        "wires": [
+            [
+                "89ebf4d90cc0fe63",
+                "af677c3a9ce71e6b",
+                "e712541d74dc0856"
+            ]
+        ]
+    },
+    {
+        "id": "af677c3a9ce71e6b",
+        "type": "function",
+        "z": "8bc02d2cd77092f8",
+        "name": "function 1",
+        "func": "msg.payload = msg.payload.Temperature;\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 80,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "4a1d906f7f059c75",
+        "type": "ui_button",
+        "z": "8bc02d2cd77092f8",
+        "name": "",
+        "group": "8c0bc7cfd358e8e4",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Light On",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "default",
+        "payload": "{\"order\":\"LightOn\"}",
+        "payloadType": "str",
+        "topic": "esp32/input/seedpilot",
+        "topicType": "msg",
+        "x": 260,
+        "y": 320,
+        "wires": [
+            [
+                "6f7435979abfab6c"
+            ]
+        ]
+    },
+    {
+        "id": "6f7435979abfab6c",
+        "type": "mqtt out",
+        "z": "8bc02d2cd77092f8",
+        "name": "",
+        "topic": "esp32/input/seedpilot",
+        "qos": "",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "9637f06ea0ba9ba2",
+        "x": 520,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "e712541d74dc0856",
+        "type": "debug",
+        "z": "8bc02d2cd77092f8",
+        "name": "debug 3",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 500,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "a068f1339591a83e",
+        "type": "ui_button",
+        "z": "8bc02d2cd77092f8",
+        "name": "",
+        "group": "8c0bc7cfd358e8e4",
+        "order": 4,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Light Off",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "default",
+        "payload": "{\"order\":\"LightOff\"}",
+        "payloadType": "str",
+        "topic": "esp32/input/seedpilot",
+        "topicType": "msg",
+        "x": 260,
+        "y": 360,
+        "wires": [
+            [
+                "6f7435979abfab6c"
+            ]
+        ]
+    },
+    {
+        "id": "c52e7caad7e9ec9c",
+        "type": "ui_button",
+        "z": "8bc02d2cd77092f8",
+        "name": "",
+        "group": "8c0bc7cfd358e8e4",
+        "order": 5,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Heater On",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "default",
+        "payload": "{\"order\":\"HeaterOn\"}",
+        "payloadType": "str",
+        "topic": "esp32/input/seedpilot",
+        "topicType": "msg",
+        "x": 250,
+        "y": 400,
+        "wires": [
+            [
+                "6f7435979abfab6c"
+            ]
+        ]
+    },
+    {
+        "id": "f43ebfea82a874ad",
+        "type": "ui_button",
+        "z": "8bc02d2cd77092f8",
+        "name": "",
+        "group": "8c0bc7cfd358e8e4",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Heater Off",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "default",
+        "payload": "{\"order\":\"HeaterOff\"}",
+        "payloadType": "str",
+        "topic": "esp32/input/seedpilot",
+        "topicType": "msg",
+        "x": 250,
+        "y": 440,
+        "wires": [
+            [
+                "6f7435979abfab6c"
+            ]
+        ]
+    },
+    {
+        "id": "270f33fce557fb62",
+        "type": "function",
+        "z": "8bc02d2cd77092f8",
+        "name": "Push Button",
+        "func": "var state = context.get(\"STATE\")||0;\n\n//  Look for a !X message to get values.\nif (msg.payload != \"X\")     //Do this if the message is NOT \"X\"\n{\n    //\n    //  Background colours first.\n    //\n    context.set(\"ABGC\", msg.colourA);\n    context.set(\"BBGC\", msg.colourB);\n    //\n    //  Now do text.\n    //\n    context.set(\"Atxt\", msg.txtA);\n    context.set(\"Btxt\", msg.txtB);\n    //\n    //  Font colours.\n    //\n    context.set(\"AFC\",msg.txtclrA);\n    context.set(\"BFC\",msg.txtclrB);\n    //\n    //  Payloads.\n    //\n    context.set(\"PayloadA\", msg.payloadA);\n    context.set(\"PayloadB\", msg.payloadB);\n    //\n    //  Topic.\n    //\n    if (msg.topicSET !== null)\n    {\n        context.set(\"Topic\",msg.topicSET);\n    } else\n    {\n        context.set(\"Topic\",\"~\");\n    }\n    return;\n}\n//      Now on to the real stuff.\nif (msg.payload == \"X\")\n{\n    state = (state + 1)% 2;\n    //node.warn(state);\n    context.set(\"STATE\",state);\n}\nif (state === 0)\n{\n    //  Condition A\n    msg.payload = context.get(\"PayloadA\");\n    msg.colour = context.get(\"ABGC\");\n    msg.txt = context.get(\"Atxt\");\n    msg.fontclr = context.get(\"AFC\");\n} else\n{\n    //  Condition B\n    msg.payload = context.get(\"PayloadB\");\n    msg.colour = context.get(\"BBGC\");\n    msg.txt = context.get(\"Btxt\");\n    msg.fontclr = context.get(\"BFC\");\n}\nif (context.get(\"Topic\") == \"~\")\n{\n    msg.topic = \"\";\n} else\n{\n    msg.topic = context.get(\"Topic\");\n}\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 90,
+        "y": 320,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "25e278c7c4cd49e7",
+        "type": "function",
+        "z": "8bc02d2cd77092f8",
+        "name": "Save config",
+        "func": "\n// initialise the counter to 0 if it doesn't exist already\nvar dashboardLog = context.get('dashboardLog')|| [];\n\ndashboardLog.push(msg);\nif (dashboardLog.length > 20){\n    // Delete oldest message if > 20\n    dashboardLog.shift();\n    dashboardLog.length = 20;\n} \n\n\n// store the value back\ncontext.set('dashboardLog',dashboardLog);\n\n// make it part of the outgoing msg object\nmsg = {};\nmsg.payload = dashboardLog;\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 680,
+        "wires": [
+            [
+                "407e28a40b5412f2"
+            ]
+        ]
+    },
+    {
+        "id": "c51050073bf1a2e1",
+        "type": "ui_form",
+        "z": "8bc02d2cd77092f8",
+        "name": "",
+        "label": "",
+        "group": "49c57ff1a7ae9348",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "options": [
+            {
+                "label": "Temperature Max",
+                "value": "temperatureMax",
+                "type": "number",
+                "required": false,
+                "rows": null
+            },
+            {
+                "label": "Temperature Low",
+                "value": "temperatureLow",
+                "type": "number",
+                "required": false,
+                "rows": null
+            },
+            {
+                "label": "fanInterval",
+                "value": "fanInterval",
+                "type": "number",
+                "required": false,
+                "rows": null
+            },
+            {
+                "label": "fanActivation_duration",
+                "value": "fanActivation_duration",
+                "type": "number",
+                "required": false,
+                "rows": null
+            }
+        ],
+        "formValue": {
+            "temperatureMax": "",
+            "temperatureLow": "",
+            "fanInterval": "",
+            "fanActivation_duration": ""
+        },
+        "payload": "",
+        "submit": "Save Config",
+        "cancel": "Cancel",
+        "topic": "topic",
+        "topicType": "str",
+        "splitLayout": "",
+        "className": "",
+        "x": 210,
+        "y": 660,
+        "wires": [
+            [
+                "25e278c7c4cd49e7"
+            ]
+        ]
+    },
+    {
+        "id": "407e28a40b5412f2",
+        "type": "debug",
+        "z": "8bc02d2cd77092f8",
+        "name": "Config Log",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 650,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "9637f06ea0ba9ba2",
+        "type": "mqtt-broker",
+        "name": "MQTT Raspi GasStation",
+        "broker": "192.168.1.105",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "a9b09a7771d2a745",
+        "type": "ui_group",
+        "name": "Data",
+        "tab": "b69433cf8898e6d1",
+        "order": 1,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "8c0bc7cfd358e8e4",
+        "type": "ui_group",
+        "name": "CONTROLS",
+        "tab": "b69433cf8898e6d1",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "49c57ff1a7ae9348",
+        "type": "ui_group",
+        "name": "CONFIG",
+        "tab": "b69433cf8898e6d1",
+        "order": 3,
+        "disp": true,
+        "width": "12",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "b69433cf8898e6d1",
+        "type": "ui_tab",
+        "name": "Sched Manager",
+        "icon": "dashboard",
+        "order": 2,
+        "disabled": false,
+        "hidden": false
+    }
+]
