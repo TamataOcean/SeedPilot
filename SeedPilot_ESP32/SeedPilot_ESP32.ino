@@ -40,6 +40,8 @@ const char* mqtt_output = "esp32/seedpilot";
 const char* mqtt_input = "esp32/input/seedpilot";
 const char* mqtt_log = "esp32/log";
 const char* mqtt_user = "ESP32_SeedPilot";
+long timeInterval = 3000; //Mqtt send data every 20sec
+
 // TIME SERVER 
 WiFiUDP ntpUDP;
 long TIMEOFFSET = 2*60*60; // Regarding your position 0 for longon, +2 * 60min * 60sec Paris 
@@ -74,7 +76,6 @@ long lastFanActivation = 0;
 long lastWifiConnection = 0;
 long lastConnection = 0; // Used to comeback to first loop if MQTT Reattemp connection is too long.
 int maxAttempts = 10;
-long timeInterval = 10000; //Mqtt send data every 20sec
 long timeMaxWifi = 60000;
 bool relayStatus = false; //Relay off at the beginning
 
