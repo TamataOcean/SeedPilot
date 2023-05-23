@@ -329,6 +329,24 @@ int commandManager(String message) {
   else if (jsonDoc["order"] == "getConfig") {
     printConfig();
   }
+  // {"order":"updateConfig"}
+  else if (jsonDoc["order"] == "updateConfig"){
+    long tempMax = jsonDoc["seedTemperatureMax"].as<long>();
+    if (tempMax > 0 ) { seedTemperatureMax = tempMax; Serial.println("temp Max updated "); }
+    long tempLow= jsonDoc["seedTemperatureLow"].as<long>();
+    if ( tempLow > 0 ) { seedTemperatureLow = tempLow; Serial.println("temp Low updated "); }
+    long tempHigh = jsonDoc["seedTemperatureHigh"].as<long>();
+    if ( tempHigh > 0) { seedTemperatureHigh = tempHigh; Serial.println("temp High updated ");}
+    long fanInt = jsonDoc["fanInterval"].as<long>();
+    if ( fanInt > 0 ) { fanInterval = fanInt; Serial.println("fan interval updated ");}
+    long fanActD = jsonDoc["fanActivation_duration"].as<long>();
+    if ( fanActD > 1000 ) { fanActivation_duration = fanActD; Serial.println("fan duration updated "); }
+    int schedLighOn = jsonDoc["schedLight_On"].as<int>();
+    if ( schedLighOn > 0 && schedLighOn <= 23 ) { sched_lightHourOn = schedLighOn; Serial.println("Light on hour updated "); }
+    int schedLighOff = jsonDoc["schedLight_Off"].as<int>();
+    if ( schedLighOff > 0 && schedLighOff <= 23  ) { sched_lightHourOff = schedLighOff; Serial.println("Light off hour updated "); }
+    Serial.println("update config done ");
+  }
   return 1;
 }
 
