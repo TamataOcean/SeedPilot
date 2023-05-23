@@ -143,8 +143,8 @@
         "correl": "",
         "expiry": "",
         "broker": "9637f06ea0ba9ba2",
-        "x": 520,
-        "y": 320,
+        "x": 700,
+        "y": 380,
         "wires": []
     },
     {
@@ -152,7 +152,7 @@
         "type": "debug",
         "z": "8bc02d2cd77092f8",
         "name": "debug 3",
-        "active": true,
+        "active": false,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
@@ -265,25 +265,6 @@
         ]
     },
     {
-        "id": "25e278c7c4cd49e7",
-        "type": "function",
-        "z": "8bc02d2cd77092f8",
-        "name": "Save config",
-        "func": "\n// initialise the counter to 0 if it doesn't exist already\nvar dashboardLog = context.get('dashboardLog')|| [];\n\ndashboardLog.push(msg);\nif (dashboardLog.length > 20){\n    // Delete oldest message if > 20\n    dashboardLog.shift();\n    dashboardLog.length = 20;\n} \n\n\n// store the value back\ncontext.set('dashboardLog',dashboardLog);\n\n// make it part of the outgoing msg object\nmsg = {};\nmsg.payload = dashboardLog;\nreturn msg;\n",
-        "outputs": 1,
-        "noerr": 0,
-        "initialize": "",
-        "finalize": "",
-        "libs": [],
-        "x": 430,
-        "y": 680,
-        "wires": [
-            [
-                "407e28a40b5412f2"
-            ]
-        ]
-    },
-    {
         "id": "c51050073bf1a2e1",
         "type": "ui_form",
         "z": "8bc02d2cd77092f8",
@@ -296,14 +277,21 @@
         "options": [
             {
                 "label": "Temperature Max",
-                "value": "temperatureMax",
+                "value": "seedTemperatureMax",
                 "type": "number",
                 "required": false,
                 "rows": null
             },
             {
                 "label": "Temperature Low",
-                "value": "temperatureLow",
+                "value": "seedTemperatureLow",
+                "type": "number",
+                "required": false,
+                "rows": null
+            },
+            {
+                "label": "Temperature High",
+                "value": "seedTemperatureHigh",
                 "type": "number",
                 "required": false,
                 "rows": null
@@ -324,8 +312,9 @@
             }
         ],
         "formValue": {
-            "temperatureMax": "",
-            "temperatureLow": "",
+            "seedTemperatureMax": "",
+            "seedTemperatureLow": "",
+            "seedTemperatureHigh": "",
             "fanInterval": "",
             "fanActivation_duration": ""
         },
@@ -336,30 +325,168 @@
         "topicType": "str",
         "splitLayout": "",
         "className": "",
-        "x": 210,
-        "y": 660,
+        "x": 190,
+        "y": 620,
         "wires": [
             [
-                "25e278c7c4cd49e7"
+                "0ab48d8d7ab5795a"
             ]
         ]
     },
     {
-        "id": "407e28a40b5412f2",
+        "id": "0ab48d8d7ab5795a",
+        "type": "function",
+        "z": "8bc02d2cd77092f8",
+        "name": "function 2",
+        "func": "var config= {};\nconfig = {\n    \"order\": \"updateConfig\",\n    \"seedTemperatureMax\": msg.payload.seedTemperatureMax,\n    \"seedTemperatureLow\": msg.payload.seedTemperatureLow,\n    \"seedTemperatureHigh\": msg.payload.seedTemperatureHigh,\n    \"fanInterval\": msg.payload.fanInterval,\n    \"fanActivation_duration\": msg.payload.fanActivation_duration,\n    \"schedLight_On\": msg.payload.schedLight_On,\n    \"schedLight_Off\": msg.payload.schedLight_Off\n};\nmsg.payload = config;\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 680,
+        "wires": [
+            [
+                "45027cdf0432d3c9",
+                "6f7435979abfab6c"
+            ]
+        ]
+    },
+    {
+        "id": "45027cdf0432d3c9",
         "type": "debug",
         "z": "8bc02d2cd77092f8",
-        "name": "Config Log",
+        "name": "Config Log2",
         "active": true,
         "tosidebar": true,
-        "console": false,
+        "console": true,
         "tostatus": false,
         "complete": "payload",
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 650,
-        "y": 680,
+        "x": 640,
+        "y": 720,
         "wires": []
+    },
+    {
+        "id": "2a996ed5f9d9d678",
+        "type": "ui_button",
+        "z": "8bc02d2cd77092f8",
+        "name": "",
+        "group": "8c0bc7cfd358e8e4",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "get Config",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "default",
+        "payload": "{\"order\":\"getConfig\"}",
+        "payloadType": "str",
+        "topic": "esp32/input/seedpilot",
+        "topicType": "msg",
+        "x": 250,
+        "y": 500,
+        "wires": [
+            [
+                "6f7435979abfab6c"
+            ]
+        ]
+    },
+    {
+        "id": "8d1ba7e628018204",
+        "type": "ui_form",
+        "z": "8bc02d2cd77092f8",
+        "name": "",
+        "label": "",
+        "group": "71e511aeec2d1cf7",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "options": [
+            {
+                "label": "fanInterval",
+                "value": "fanInterval",
+                "type": "number",
+                "required": false,
+                "rows": null
+            },
+            {
+                "label": "fanActivation_duration",
+                "value": "fanActivation_duration",
+                "type": "number",
+                "required": false,
+                "rows": null
+            }
+        ],
+        "formValue": {
+            "fanInterval": "",
+            "fanActivation_duration": ""
+        },
+        "payload": "",
+        "submit": "Save Config",
+        "cancel": "Cancel",
+        "topic": "topic",
+        "topicType": "str",
+        "splitLayout": "",
+        "className": "",
+        "x": 190,
+        "y": 660,
+        "wires": [
+            [
+                "0ab48d8d7ab5795a"
+            ]
+        ]
+    },
+    {
+        "id": "ec05e853b6a9b5e9",
+        "type": "ui_form",
+        "z": "8bc02d2cd77092f8",
+        "name": "",
+        "label": "",
+        "group": "96076adde0e73ffb",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "options": [
+            {
+                "label": "Light On",
+                "value": "schedLight_On",
+                "type": "number",
+                "required": false,
+                "rows": null
+            },
+            {
+                "label": "Light Off",
+                "value": "schedLight_Off",
+                "type": "number",
+                "required": false,
+                "rows": null
+            }
+        ],
+        "formValue": {
+            "schedLight_On": "",
+            "schedLight_Off": ""
+        },
+        "payload": "",
+        "submit": "Save Config",
+        "cancel": "Cancel",
+        "topic": "topic",
+        "topicType": "str",
+        "splitLayout": "",
+        "className": "",
+        "x": 250,
+        "y": 720,
+        "wires": [
+            [
+                "0ab48d8d7ab5795a"
+            ]
+        ]
     },
     {
         "id": "9637f06ea0ba9ba2",
@@ -413,11 +540,33 @@
     {
         "id": "49c57ff1a7ae9348",
         "type": "ui_group",
-        "name": "CONFIG",
+        "name": "CONFIG Temperature",
         "tab": "b69433cf8898e6d1",
         "order": 3,
         "disp": true,
         "width": "12",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "71e511aeec2d1cf7",
+        "type": "ui_group",
+        "name": "Fan Update",
+        "tab": "b69433cf8898e6d1",
+        "order": 4,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "96076adde0e73ffb",
+        "type": "ui_group",
+        "name": "Sched Light",
+        "tab": "b69433cf8898e6d1",
+        "order": 5,
+        "disp": true,
+        "width": "6",
         "collapse": false,
         "className": ""
     },
