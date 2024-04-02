@@ -33,8 +33,8 @@ int deviceCount = 0;
 
 DynamicJsonDocument jsonDoc(256); 
 
-const char* ssid     = "GasStationAP";
-const char* password = "tamata50";
+const char* ssid     = "WifiRaspi";
+const char* password = "wifiraspi";
 const char* mqtt_server = "172.24.1.1";
 const char* mqtt_output = "esp32/seedpilot";
 const char* mqtt_input = "esp32/input/seedpilot";
@@ -143,7 +143,7 @@ void loop() {
 
   ds.requestTemperatures();
   double temperature = ds.getTempCByIndex(0);
-  temperature = 25;
+  
   // Serial.print(temperature);
   // Serial.println( "°C");
 
@@ -153,7 +153,7 @@ void loop() {
     stateHeater = true;
   }
   if ( temperature >= seedTemperatureHigh ) {
-    // Serial.println(" - Heater Off");
+    // Serial.println("AUTO - temperature >= seedTemperatureHigh - Heater Off");
     digitalWrite(relayHeater, LOW);
     stateHeater = false;
   }
@@ -167,7 +167,7 @@ void loop() {
   }
 
   // Fan ON at every FanInterval, UNLESS temperature is to low. 
-  if ( (now - lastFanActivation > fanInterval) && (temperature > seedTemperatureLow ) && !stateFan) {
+  if ( (now - lastFanActivation > fanInterval) && (temperature >= seedTemperatureLow ) && !stateFan) {
     Serial.println("AUTO - Fan On");
     digitalWrite(relayFan, HIGH);
     lastFanActivation = now;
