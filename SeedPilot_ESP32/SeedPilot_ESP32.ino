@@ -30,7 +30,7 @@ BME280 sensorBME280;
 #define ONE_WIRE_BUS 14
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature ds(&oneWire);
-// device external
+// device external test
 DeviceAddress Thermometer;
 int deviceCount = 0;
 
