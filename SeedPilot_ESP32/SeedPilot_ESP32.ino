@@ -23,8 +23,11 @@
 #include <ArduinoJson.h>
 #include <NTPClient.h>
 #include <WiFiUdp.h>
+#include "SparkFunBME280.h"
 
-#define ONE_WIRE_BUS 17
+BME280 sensorBME280;
+
+#define ONE_WIRE_BUS 14
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature ds(&oneWire);
 // variable to hold device addresses
@@ -40,6 +43,8 @@ const char* mqtt_output = "esp32/seedpilot";
 const char* mqtt_input = "esp32/input/seedpilot";
 const char* mqtt_log = "esp32/log";
 const char* mqtt_user = "ESP32_SeedPilot";
+long timeInterval = 3000; //Mqtt send data every 20sec
+
 // TIME SERVER 
 WiFiUDP ntpUDP;
 long TIMEOFFSET = 2*60*60; // Regarding your position 0 for longon, +2 * 60min * 60sec Paris 
@@ -48,8 +53,8 @@ NTPClient timeClient(ntpUDP, TIMEOFFSET );
 int hour;
 int minute;
 int seconde;
-int sched_lightHourOn = 6;      // Light on at 6AM
-int sched_lightHourOff= 22;     // Light off at 10PM
+int sched_lightHourOn = 8;      // Light on at 6AM
+int sched_lightHourOff= 21;     // Light off at 10PM
 
 int relayHeater = 26; 
 int relayLight = 25; 
@@ -62,7 +67,7 @@ bool statePump = false;
 
 // TEMPERATURE CONFIG
 float seedTemperatureHigh = 25;
-float seedTemperatureLow = 24.5;
+float seedTemperatureLow = 23;
 float seedTemperatureMax = 25.5;
 
 // FAN CONFIG
@@ -74,7 +79,6 @@ long lastFanActivation = 0;
 long lastWifiConnection = 0;
 long lastConnection = 0; // Used to comeback to first loop if MQTT Reattemp connection is too long.
 int maxAttempts = 10;
-long timeInterval = 10000; //Mqtt send data every 20sec
 long timeMaxWifi = 60000;
 bool relayStatus = false; //Relay off at the beginning
 
@@ -101,13 +105,13 @@ void setup() {
   Serial.println("INIT RELAY");
   // Pin for relay module set as output
   pinMode(relayHeater, OUTPUT);
-  digitalWrite(relayHeater, LOW);
+  digitalWrite(relayHeater, HIGH);
   pinMode(relayLight, OUTPUT);
-  digitalWrite(relayLight, LOW);
+  digitalWrite(relayLight, HIGH);
   pinMode(relayFan, OUTPUT);
-  digitalWrite(relayFan, LOW);
+  digitalWrite(relayFan, HIGH);
   pinMode(relayPump, OUTPUT);
-  digitalWrite(relayPump, LOW);
+  digitalWrite(relayPump, HIGH);
 
   // Init and get the time
   timeClient.begin();
@@ -115,6 +119,21 @@ void setup() {
   /* Getting all config on serial */
   printConfig();
 
+  /* ********************* */
+  /*  BME280 SENSOR        */ 
+  /* ********************* */
+  Serial.println("BME280 begin");
+  // I2C device found at address 0x76
+  Wire.begin();
+  if (sensorBME280.beginI2C() == false) //Begin communication over I2C
+  {
+    Serial.println("The sensor did not respond. Please check wiring.");
+    while(1); //Freeze
+  }
+  else
+  {
+    Serial.println("BME280 started & configured");
+  }
 }
 
 /* ------------------------ */
@@ -131,12 +150,12 @@ void loop() {
 
   //Activate Light regarding schedTime
   if ( hour >= sched_lightHourOn && hour <= sched_lightHourOff && !stateLight) {
-    digitalWrite(relayLight, HIGH);
+    digitalWrite(relayLight, LOW);
     Serial.println("AUTO - Light on");
     stateLight = true;
   }
   else if ((hour <sched_lightHourOn || hour > sched_lightHourOff ) && stateLight ){
-    digitalWrite(relayLight, LOW);
+    digitalWrite(relayLight, HIGH);
     Serial.println("AUTO - Light off");
     stateLight = false;
   }
@@ -149,7 +168,7 @@ void loop() {
 
   if ( temperature < seedTemperatureLow) {
     // Serial.println( " - Heater ON");
-    digitalWrite(relayHeater, HIGH);
+    digitalWrite(relayHeater, LOW);
     stateHeater = true;
   }
   if ( temperature >= seedTemperatureHigh ) {
@@ -161,7 +180,7 @@ void loop() {
   // Fan ON if temperature is too high 
   if ( temperature >= seedTemperatureMax ) {
     // Serial.println(" - Fan On");
-    digitalWrite(relayFan, HIGH);
+    digitalWrite(relayFan, LOW);
     lastFanActivation = now;
     stateFan = true; 
   }
@@ -169,7 +188,7 @@ void loop() {
   // Fan ON at every FanInterval, UNLESS temperature is to low. 
   if ( (now - lastFanActivation > fanInterval) && (temperature >= seedTemperatureLow ) && !stateFan) {
     Serial.println("AUTO - Fan On");
-    digitalWrite(relayFan, HIGH);
+    digitalWrite(relayFan, LOW);
     lastFanActivation = now;
     stateFan = true;
   }
@@ -177,14 +196,14 @@ void loop() {
   // Fan OFF if temperature is too low
   if ( temperature <= seedTemperatureLow-1 && stateFan) {
     Serial.println("AUTO - Fan Off - Temperature is too low");
-    digitalWrite(relayFan, LOW);
+    digitalWrite(relayFan, HIGH);
     stateFan = false;
   }
   
   //Fan OFF if "duration" limit overpass, UNLESS temperature is too high. 
   if ( now - lastFanActivation > fanActivation_duration && (temperature < seedTemperatureMax) && stateFan) {
     Serial.println("AUTO - Fan Off duration passed");
-    digitalWrite(relayFan, LOW);
+    digitalWrite(relayFan, HIGH);
     stateFan = false;
   }
 
@@ -209,7 +228,8 @@ void loop() {
       Serial.println("Reconnect to Mqtt");
       reconnect();
     }
-    String json = "{\"user\":\""+(String)mqtt_user+"\",\"Temperature\":\""+(String)temperature+"\",\"stateHeater\":"+stateHeater+",\"stateLight\":"+stateLight+",\"stateFan\":"+stateFan+",\"statePump\":"+statePump+"}";
+    String json = "{\"user\":\""+(String)mqtt_user+"\",\"Humidity\":\""+(String)sensorBME280.readFloatHumidity()+"\",\"Pressure\":\""+(String)sensorBME280.readFloatPressure()+"\",\"Altitude\":\""+(String)sensorBME280.readFloatAltitudeMeters()+"\",\"AirTemperature\":\""+(String)sensorBME280.readTempC()+"\",\"Temperature\":\""+(String)temperature+"\",\"stateHeater\":"+stateHeater+",\"stateLight\":"+stateLight+",\"stateFan\":"+stateFan+",\"statePump\":"+statePump+"}";
+    
     client.publish(mqtt_output, json.c_str());
     Serial.println("Mqtt sent to : " + (String)mqtt_output );
     Serial.println(json);
@@ -238,13 +258,13 @@ int commandManager(String message) {
   // {"order":"HeaterOn"}
   if (jsonDoc["order"] == "HeaterOn") {
     Serial.println( " - Heater On order received");
-    digitalWrite(relayHeater, HIGH);
+    digitalWrite(relayHeater, LOW);
     Serial.println("HeaterOn");
     stateHeater = true;
   }
   else if (jsonDoc["order"] == "HeaterOff") {
     Serial.println( " - Heater Off order received");
-    digitalWrite(relayHeater, LOW);
+    digitalWrite(relayHeater, HIGH);
     Serial.println("HeaterOff");
     stateHeater = false;
   }
@@ -265,34 +285,34 @@ int commandManager(String message) {
   // {"order":"LightOff"}
   else if (jsonDoc["order"] == "LightOff") {
     Serial.println( " - Light Off order received");
-    digitalWrite(relayLight, LOW);
+    digitalWrite(relayLight, HIGH);
     Serial.println("LightOff");
     stateLight = false;
   }
   // {"order":"LightOn"}
   else if (jsonDoc["order"] == "LightOn") {
     Serial.println( " - Light On order received");
-    digitalWrite(relayLight, HIGH);
+    digitalWrite(relayLight, LOW);
     Serial.println("LightOn");
     stateLight = true;
   }
   // {"order":"FanOff"}
   else if (jsonDoc["order"] == "FanOff") {
     Serial.println( " - Fan Off order received");
-    digitalWrite(relayFan, LOW);
+    digitalWrite(relayFan, HIGH);
     Serial.println("FanOff");
     stateFan = false;
   }
   // {"order":"FanOn"}
   else if (jsonDoc["order"] == "FanOn") {
     Serial.println( " - Fan On order received");
-    digitalWrite(relayFan, HIGH);
+    digitalWrite(relayFan, LOW);
     Serial.println("FanOn");
     stateFan = true;
   }
   // {"order":"PumpOff"}
   else if (jsonDoc["order"] == "PumpOff") {
-    digitalWrite(relayPump, LOW);
+    digitalWrite(relayPump, HIGH);
     Serial.println( " - pump Off order received");
     Serial.println("PumpOff");
     statePump = false;
@@ -300,7 +320,7 @@ int commandManager(String message) {
   // {"order":"PumpOn"}
   else if (jsonDoc["order"] == "PumpOn") {
     Serial.println( " - pump On order received");
-    digitalWrite(relayPump, HIGH);
+    digitalWrite(relayPump, LOW);
     Serial.println("PumpOn");
     statePump = true;
   }
@@ -327,6 +347,24 @@ int commandManager(String message) {
   //  {"order":"getConfig"}
   else if (jsonDoc["order"] == "getConfig") {
     printConfig();
+  }
+  // {"order":"updateConfig"}
+  else if (jsonDoc["order"] == "updateConfig"){
+    long tempMax = jsonDoc["seedTemperatureMax"].as<long>();
+    if (tempMax > 0 ) { seedTemperatureMax = tempMax; Serial.println("temp Max updated "); }
+    long tempLow= jsonDoc["seedTemperatureLow"].as<long>();
+    if ( tempLow > 0 ) { seedTemperatureLow = tempLow; Serial.println("temp Low updated "); }
+    long tempHigh = jsonDoc["seedTemperatureHigh"].as<long>();
+    if ( tempHigh > 0) { seedTemperatureHigh = tempHigh; Serial.println("temp High updated ");}
+    long fanInt = jsonDoc["fanInterval"].as<long>();
+    if ( fanInt > 0 ) { fanInterval = fanInt; Serial.println("fan interval updated ");}
+    long fanActD = jsonDoc["fanActivation_duration"].as<long>();
+    if ( fanActD > 1000 ) { fanActivation_duration = fanActD; Serial.println("fan duration updated "); }
+    int schedLighOn = jsonDoc["schedLight_On"].as<int>();
+    if ( schedLighOn > 0 && schedLighOn <= 23 ) { sched_lightHourOn = schedLighOn; Serial.println("Light on hour updated "); }
+    int schedLighOff = jsonDoc["schedLight_Off"].as<int>();
+    if ( schedLighOff > 0 && schedLighOff <= 23  ) { sched_lightHourOff = schedLighOff; Serial.println("Light off hour updated "); }
+    Serial.println("update config done ");
   }
   return 1;
 }
