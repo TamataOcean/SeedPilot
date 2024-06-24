@@ -30,12 +30,15 @@ BME280 sensorBME280;
 #define ONE_WIRE_BUS 14
 OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature ds(&oneWire);
-// variable to hold device addresses
+// device external test
 DeviceAddress Thermometer;
 int deviceCount = 0;
 
 DynamicJsonDocument jsonDoc(256); 
 
+const char* ssid     = "WifiRaspi";
+const char* password = "wifiraspi";
+const char* mqtt_server = "172.24.1.1";
 const char* ssid     = "WifiRaspi";
 const char* password = "wifiraspi";
 const char* mqtt_server = "172.24.1.1";
@@ -168,9 +171,9 @@ void loop() {
 
   ds.requestTemperatures();
   double temperature = ds.getTempCByIndex(0);
-  //temperature = 25;
-  Serial.print(temperature);
-  Serial.println( "°C");
+  
+  // Serial.print(temperature);
+  // Serial.println( "°C");
 
   if ( temperature < seedTemperatureLow) {
     // Serial.println( " - Heater ON");
@@ -178,8 +181,8 @@ void loop() {
     stateHeater = true;
   }
   if ( temperature >= seedTemperatureHigh ) {
-    // Serial.println(" - Heater Off");
-    digitalWrite(relayHeater, HIGH);
+    // Serial.println("AUTO - temperature >= seedTemperatureHigh - Heater Off");
+    digitalWrite(relayHeater, LOW);
     stateHeater = false;
   }
 
