@@ -8,6 +8,304 @@
         "env": []
     },
     {
+        "id": "564a9cba19c2bc96",
+        "type": "ui_tab",
+        "name": "Paramétrage",
+        "icon": "settings",
+        "order": 1,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "a5f6c3d7b9e4",
+        "type": "ui_tab",
+        "name": "Lancement de l'enregistrement",
+        "icon": "camera_roll",
+        "order": 3,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "f899a08a0af76d49",
+        "type": "ui_group",
+        "name": "Paramétrage (son)",
+        "tab": "564a9cba19c2bc96",
+        "order": 2,
+        "disp": true,
+        "width": "12",
+        "collapse": true,
+        "className": ""
+    },
+    {
+        "id": "4402a57f897c8600",
+        "type": "ui_group",
+        "name": "Paramétrage (caméra)",
+        "tab": "564a9cba19c2bc96",
+        "order": 1,
+        "disp": true,
+        "width": "12",
+        "collapse": true,
+        "className": ""
+    },
+    {
+        "id": "bbd3e3f3bc9b",
+        "type": "ui_group",
+        "name": "Lancement de l'enregistrement",
+        "tab": "a5f6c3d7b9e4",
+        "order": 1,
+        "disp": true,
+        "width": "12",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "57d43aab7004fac7",
+        "type": "ui_base",
+        "theme": {
+            "name": "theme-light",
+            "lightTheme": {
+                "default": "#0094CE",
+                "baseColor": "#0094CE",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": true,
+                "reset": false
+            },
+            "darkTheme": {
+                "default": "#097479",
+                "baseColor": "#097479",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif",
+                "edited": false
+            },
+            "customTheme": {
+                "name": "Untitled Theme 1",
+                "default": "#4B7930",
+                "baseColor": "#4B7930",
+                "baseFont": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+            },
+            "themeState": {
+                "base-color": {
+                    "default": "#0094CE",
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-titlebar-backgroundColor": {
+                    "value": "#0094CE",
+                    "edited": false
+                },
+                "page-backgroundColor": {
+                    "value": "#fafafa",
+                    "edited": false
+                },
+                "page-sidebar-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-textColor": {
+                    "value": "#1bbfff",
+                    "edited": false
+                },
+                "group-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "group-backgroundColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "widget-textColor": {
+                    "value": "#111111",
+                    "edited": false
+                },
+                "widget-backgroundColor": {
+                    "value": "#0094ce",
+                    "edited": false
+                },
+                "widget-borderColor": {
+                    "value": "#ffffff",
+                    "edited": false
+                },
+                "base-font": {
+                    "value": "-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen-Sans,Ubuntu,Cantarell,Helvetica Neue,sans-serif"
+                }
+            },
+            "angularTheme": {
+                "primary": "indigo",
+                "accents": "blue",
+                "warn": "red",
+                "background": "grey",
+                "palette": "light"
+            }
+        },
+        "site": {
+            "name": "SeedPilot",
+            "hideToolbar": "false",
+            "allowSwipe": "false",
+            "lockMenu": "true",
+            "allowTempTheme": "true",
+            "dateFormat": "DD/MM/YYYY",
+            "sizes": {
+                "sx": 48,
+                "sy": 48,
+                "gx": 6,
+                "gy": 6,
+                "cx": 6,
+                "cy": 6,
+                "px": 0,
+                "py": 0
+            }
+        }
+    },
+    {
+        "id": "8e239b0d5cb9746b",
+        "type": "mqtt-broker",
+        "name": "MQTT Local",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "ba7648b8.35c9f8",
+        "type": "mqtt-broker",
+        "name": "MQTT Local",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "closeTopic": "",
+        "closePayload": "",
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": ""
+    },
+    {
+        "id": "d783cb980c3979fc",
+        "type": "ui_group",
+        "name": "Enregistrement du fichier de paramétrage (.json)",
+        "tab": "564a9cba19c2bc96",
+        "order": 3,
+        "disp": true,
+        "width": "12",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "1899631ef10e7f34",
+        "type": "ui_tab",
+        "name": "Tab 4",
+        "icon": "dashboard",
+        "order": 4
+    },
+    {
+        "id": "9637f06ea0ba9ba2",
+        "type": "mqtt-broker",
+        "name": "MQTT Raspi GasStation",
+        "broker": "192.168.1.101",
+        "port": "1883",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": "4",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "b69433cf8898e6d1",
+        "type": "ui_tab",
+        "name": "Sched Manager",
+        "icon": "dashboard",
+        "order": 2,
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "a9b09a7771d2a745",
+        "type": "ui_group",
+        "name": "Data",
+        "tab": "b69433cf8898e6d1",
+        "order": 1,
+        "disp": true,
+        "width": "12",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "8c0bc7cfd358e8e4",
+        "type": "ui_group",
+        "name": "CONTROLS",
+        "tab": "b69433cf8898e6d1",
+        "order": 2,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "49c57ff1a7ae9348",
+        "type": "ui_group",
+        "name": "CONFIG Temperature",
+        "tab": "b69433cf8898e6d1",
+        "order": 3,
+        "disp": true,
+        "width": "12",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "71e511aeec2d1cf7",
+        "type": "ui_group",
+        "name": "Fan Update",
+        "tab": "b69433cf8898e6d1",
+        "order": 4,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "96076adde0e73ffb",
+        "type": "ui_group",
+        "name": "Sched Light",
+        "tab": "b69433cf8898e6d1",
+        "order": 5,
+        "disp": true,
+        "width": "6",
+        "collapse": false,
+        "className": ""
+    },
+    {
         "id": "33071936bbcac7e0",
         "type": "mqtt in",
         "z": "8bc02d2cd77092f8",
@@ -35,8 +333,8 @@
         "name": "Température",
         "group": "a9b09a7771d2a745",
         "order": 1,
-        "width": 0,
-        "height": 0,
+        "width": "4",
+        "height": "4",
         "gtype": "gage",
         "title": "Température",
         "label": "°C",
@@ -80,7 +378,8 @@
             [
                 "89ebf4d90cc0fe63",
                 "af677c3a9ce71e6b",
-                "e712541d74dc0856"
+                "e712541d74dc0856",
+                "7a562de10e962aef"
             ]
         ]
     },
@@ -95,8 +394,8 @@
         "initialize": "",
         "finalize": "",
         "libs": [],
-        "x": 500,
-        "y": 80,
+        "x": 450,
+        "y": 150,
         "wires": [
             []
         ]
@@ -107,7 +406,7 @@
         "z": "8bc02d2cd77092f8",
         "name": "",
         "group": "8c0bc7cfd358e8e4",
-        "order": 3,
+        "order": 1,
         "width": 0,
         "height": 0,
         "passthru": false,
@@ -143,8 +442,8 @@
         "correl": "",
         "expiry": "",
         "broker": "9637f06ea0ba9ba2",
-        "x": 700,
-        "y": 380,
+        "x": 580,
+        "y": 390,
         "wires": []
     },
     {
@@ -152,15 +451,15 @@
         "type": "debug",
         "z": "8bc02d2cd77092f8",
         "name": "debug 3",
-        "active": false,
+        "active": true,
         "tosidebar": true,
         "console": false,
         "tostatus": false,
         "complete": "false",
         "statusVal": "",
         "statusType": "auto",
-        "x": 500,
-        "y": 140,
+        "x": 330,
+        "y": 210,
         "wires": []
     },
     {
@@ -169,7 +468,7 @@
         "z": "8bc02d2cd77092f8",
         "name": "",
         "group": "8c0bc7cfd358e8e4",
-        "order": 4,
+        "order": 2,
         "width": 0,
         "height": 0,
         "passthru": false,
@@ -197,7 +496,7 @@
         "z": "8bc02d2cd77092f8",
         "name": "",
         "group": "8c0bc7cfd358e8e4",
-        "order": 5,
+        "order": 3,
         "width": 0,
         "height": 0,
         "passthru": false,
@@ -225,7 +524,7 @@
         "z": "8bc02d2cd77092f8",
         "name": "",
         "group": "8c0bc7cfd358e8e4",
-        "order": 6,
+        "order": 4,
         "width": 0,
         "height": 0,
         "passthru": false,
@@ -325,8 +624,8 @@
         "topicType": "str",
         "splitLayout": "",
         "className": "",
-        "x": 190,
-        "y": 620,
+        "x": 230,
+        "y": 660,
         "wires": [
             [
                 "0ab48d8d7ab5795a"
@@ -340,6 +639,7 @@
         "name": "function 2",
         "func": "var config= {};\nconfig = {\n    \"order\": \"updateConfig\",\n    \"seedTemperatureMax\": msg.payload.seedTemperatureMax,\n    \"seedTemperatureLow\": msg.payload.seedTemperatureLow,\n    \"seedTemperatureHigh\": msg.payload.seedTemperatureHigh,\n    \"fanInterval\": msg.payload.fanInterval,\n    \"fanActivation_duration\": msg.payload.fanActivation_duration,\n    \"schedLight_On\": msg.payload.schedLight_On,\n    \"schedLight_Off\": msg.payload.schedLight_Off\n};\nmsg.payload = config;\n\nreturn msg;",
         "outputs": 1,
+        "timeout": "",
         "noerr": 0,
         "initialize": "",
         "finalize": "",
@@ -366,8 +666,8 @@
         "targetType": "msg",
         "statusVal": "",
         "statusType": "auto",
-        "x": 640,
-        "y": 720,
+        "x": 670,
+        "y": 690,
         "wires": []
     },
     {
@@ -376,7 +676,7 @@
         "z": "8bc02d2cd77092f8",
         "name": "",
         "group": "8c0bc7cfd358e8e4",
-        "order": 6,
+        "order": 7,
         "width": 0,
         "height": 0,
         "passthru": false,
@@ -390,8 +690,8 @@
         "payloadType": "str",
         "topic": "esp32/input/seedpilot",
         "topicType": "msg",
-        "x": 250,
-        "y": 500,
+        "x": 230,
+        "y": 600,
         "wires": [
             [
                 "6f7435979abfab6c"
@@ -435,8 +735,8 @@
         "topicType": "str",
         "splitLayout": "",
         "className": "",
-        "x": 190,
-        "y": 660,
+        "x": 230,
+        "y": 720,
         "wires": [
             [
                 "0ab48d8d7ab5795a"
@@ -481,7 +781,7 @@
         "splitLayout": "",
         "className": "",
         "x": 250,
-        "y": 720,
+        "y": 780,
         "wires": [
             [
                 "0ab48d8d7ab5795a"
@@ -489,94 +789,115 @@
         ]
     },
     {
-        "id": "9637f06ea0ba9ba2",
-        "type": "mqtt-broker",
-        "name": "MQTT Raspi GasStation",
-        "broker": "192.168.1.105",
-        "port": "1883",
-        "clientid": "",
-        "autoConnect": true,
-        "usetls": false,
-        "protocolVersion": "4",
-        "keepalive": "60",
-        "cleansession": true,
-        "birthTopic": "",
-        "birthQos": "0",
-        "birthPayload": "",
-        "birthMsg": {},
-        "closeTopic": "",
-        "closeQos": "0",
-        "closePayload": "",
-        "closeMsg": {},
-        "willTopic": "",
-        "willQos": "0",
-        "willPayload": "",
-        "willMsg": {},
-        "userProps": "",
-        "sessionExpiry": ""
+        "id": "35f1aee93a2c43de",
+        "type": "ui_button",
+        "z": "8bc02d2cd77092f8",
+        "name": "",
+        "group": "8c0bc7cfd358e8e4",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Fan Off",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "default",
+        "payload": "{\"order\":\"FanOff\"}",
+        "payloadType": "str",
+        "topic": "esp32/input/seedpilot",
+        "topicType": "msg",
+        "x": 240,
+        "y": 540,
+        "wires": [
+            [
+                "6f7435979abfab6c"
+            ]
+        ]
     },
     {
-        "id": "a9b09a7771d2a745",
-        "type": "ui_group",
-        "name": "Data",
-        "tab": "b69433cf8898e6d1",
-        "order": 1,
-        "disp": true,
-        "width": "6",
-        "collapse": false,
-        "className": ""
-    },
-    {
-        "id": "8c0bc7cfd358e8e4",
-        "type": "ui_group",
-        "name": "CONTROLS",
-        "tab": "b69433cf8898e6d1",
-        "order": 2,
-        "disp": true,
-        "width": "6",
-        "collapse": false,
-        "className": ""
-    },
-    {
-        "id": "49c57ff1a7ae9348",
-        "type": "ui_group",
-        "name": "CONFIG Temperature",
-        "tab": "b69433cf8898e6d1",
-        "order": 3,
-        "disp": true,
-        "width": "12",
-        "collapse": false,
-        "className": ""
-    },
-    {
-        "id": "71e511aeec2d1cf7",
-        "type": "ui_group",
-        "name": "Fan Update",
-        "tab": "b69433cf8898e6d1",
-        "order": 4,
-        "disp": true,
-        "width": "6",
-        "collapse": false,
-        "className": ""
-    },
-    {
-        "id": "96076adde0e73ffb",
-        "type": "ui_group",
-        "name": "Sched Light",
-        "tab": "b69433cf8898e6d1",
+        "id": "8853ce29cf710912",
+        "type": "ui_button",
+        "z": "8bc02d2cd77092f8",
+        "name": "",
+        "group": "8c0bc7cfd358e8e4",
         "order": 5,
-        "disp": true,
-        "width": "6",
-        "collapse": false,
-        "className": ""
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Fan On",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "default",
+        "payload": "{\"order\":\"FanOn\"}",
+        "payloadType": "str",
+        "topic": "esp32/input/seedpilot",
+        "topicType": "msg",
+        "x": 270,
+        "y": 480,
+        "wires": [
+            [
+                "6f7435979abfab6c"
+            ]
+        ]
     },
     {
-        "id": "b69433cf8898e6d1",
-        "type": "ui_tab",
-        "name": "Sched Manager",
-        "icon": "dashboard",
+        "id": "7a562de10e962aef",
+        "type": "ui_gauge",
+        "z": "8bc02d2cd77092f8",
+        "name": "Air Température",
+        "group": "a9b09a7771d2a745",
         "order": 2,
-        "disabled": false,
-        "hidden": false
+        "width": "4",
+        "height": "4",
+        "gtype": "gage",
+        "title": "Air Température",
+        "label": "°C",
+        "format": "{{msg.payload.AirTemperature}}",
+        "min": "15",
+        "max": "30",
+        "colors": [
+            "#0080ff",
+            "#25c038",
+            "#ca3838"
+        ],
+        "seg1": "20",
+        "seg2": "26",
+        "diff": false,
+        "className": "",
+        "x": 690,
+        "y": 90,
+        "wires": []
+    },
+    {
+        "id": "848dfdd85f0b5546",
+        "type": "ui_button",
+        "z": "8bc02d2cd77092f8",
+        "name": "",
+        "group": "8c0bc7cfd358e8e4",
+        "order": 6,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "label": "Clear Mqtt Message",
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "default",
+        "payload": "\"\"",
+        "payloadType": "str",
+        "topic": "esp32/input/seedpilot",
+        "topicType": "msg",
+        "x": 310,
+        "y": 870,
+        "wires": [
+            [
+                "6f7435979abfab6c"
+            ]
+        ]
     }
 ]
