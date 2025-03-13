@@ -39,11 +39,16 @@ DynamicJsonDocument jsonDoc(256);
 const char* ssid     = "WifiRaspi";
 const char* password = "wifiraspi";
 const char* mqtt_server = "172.24.1.1";
+const char* ssid     = "WifiRaspi";
+const char* password = "wifiraspi";
+const char* mqtt_server = "172.24.1.1";
 const char* mqtt_output = "esp32/seedpilot";
 const char* mqtt_input = "esp32/input/seedpilot";
 const char* mqtt_log = "esp32/log";
 const char* mqtt_user = "ESP32_SeedPilot";
-long timeInterval = 3000; //Mqtt send data every 20sec
+const char* mqtt_password = "password";
+const char mqtt_UUID[] = "SEED_PILOT_001";
+long timeInterval = 30000; //Mqtt send data every 30sec
 
 // TIME SERVER 
 WiFiUDP ntpUDP;
@@ -71,8 +76,8 @@ float seedTemperatureLow = 23;
 float seedTemperatureMax = 25.5;
 
 // FAN CONFIG
-long fanInterval = 300000 ; //interval to activte each milliseconde the fan - every 5min
-long fanActivation_duration = 60000; //during time Fan is activated 
+long fanInterval = 900000 ; //interval to activte each milliseconde the fan - every 15min
+long fanActivation_duration = 120000; //during time Fan is activated - 2 min
 
 long lastMsg = 0;
 long lastFanActivation = 0;
@@ -148,7 +153,7 @@ void loop() {
   minute = timeClient.getMinutes();
   seconde = timeClient.getSeconds();
 
-  //Activate Light regarding schedTime
+  //Activate Light & Fan regarding schedTime
   if ( hour >= sched_lightHourOn && hour <= sched_lightHourOff && !stateLight) {
     digitalWrite(relayLight, LOW);
     Serial.println("AUTO - Light on");
@@ -158,6 +163,10 @@ void loop() {
     digitalWrite(relayLight, HIGH);
     Serial.println("AUTO - Light off");
     stateLight = false;
+    
+    digitalWrite(relayFan, HIGH);
+    Serial.println("AUTO - fan off");
+    stateFan = false;
   }
 
   ds.requestTemperatures();
@@ -185,8 +194,8 @@ void loop() {
     stateFan = true; 
   }
 
-  // Fan ON at every FanInterval, UNLESS temperature is to low. 
-  if ( (now - lastFanActivation > fanInterval) && (temperature >= seedTemperatureLow ) && !stateFan) {
+  // Fan ON at every FanInterval, UNLESS temperature is to low or regarding sched time. 
+  if ( (now - lastFanActivation > fanInterval) && (temperature > seedTemperatureLow ) && !stateFan && (hour <sched_lightHourOn || hour > sched_lightHourOff ) ) {
     Serial.println("AUTO - Fan On");
     digitalWrite(relayFan, LOW);
     lastFanActivation = now;
@@ -409,7 +418,9 @@ void reconnect() {
     delay(100);
     Serial.print("Attempting MQTT connection...");
     // Attempt to connect
-    if (client.connect("ESP8266Client")) {
+    //if (client.connect("ESP8266Client")) {
+    if (client.connect(mqtt_UUID, mqtt_user, mqtt_password)) {
+      
       Serial.println("connected");
       // Subscribe
       client.subscribe(mqtt_input);
